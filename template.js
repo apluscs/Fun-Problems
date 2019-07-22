@@ -1,3 +1,7 @@
+/* Written for a local tech startup (that shall remain anonymous)
+   Replaces every occurence of "%%END%%" with the current date and every occurence of "%%START%%" with the date two days ago
+*/
+
 window.onload = main;
 
 function main() {
