@@ -1,0 +1,52 @@
+Please enter the following in 0-based format. Please enter any coordinates as 'x y' and any vectors as 'x-component y-component'. 
+The top-left corner is (0,0), and the bottom-right corner is (N-1, M-1). Up is a negative y-direction. Down is a positive y-direction. 
+Left is a negative x-direction. Right is a positive x-direction. 
+The template goes as follows:
+
+**Make sure there is no white space above the first two numbers**
+#rows #columns
+x-target-location y-target-location
+x-source-location y-source-location
+#commands-in-source-cell
+each command: 
+	x-direction y-direction
+#set-blocks
+each set block: 
+	x-position y-position
+	#commands-in-block
+	each command: 
+		x-direction y-direction
+#moveable-blocks:
+each moveable block:
+	#commands-in-block
+	each command: 
+		x-direction y-direction
+
+
+Example (any text to the right of the numbers is for educational purposes only and should not be included in your text file): 
+4 4 N*M
+0 2	location of target
+3 0	location of source
+1	#commands-in-source-cell
+2 -2	right and up 
+2	#set blocks
+1 1 position
+1	#commands
+1 1 right and down
+2 2
+1
+0 1
+5 #moveable blocks
+2 #commands
+3 0	right 
+-2 2
+1
+-1 0
+1
+0 -1
+1
+0 -3
+1
+-1 -1
+
+
