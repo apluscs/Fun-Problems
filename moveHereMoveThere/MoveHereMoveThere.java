@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -29,18 +30,19 @@ public class MoveHereMoveThere {
         break;
       dfs(source[0], source[1], b);
     }
-    //      System.out.println(Arrays.toString(blocks));
+    //    printGrid();
+    //    System.out.println(Arrays.toString(blocks));
 
   }
 
 
   static void dfs(int r, int c, Block curr) {
 
-    if (quit)
+    if (quit || r >= N || c >= M || r < 0 || c < 0) //|| off the grid
       return;
-    //    System.out.println(r + ", " + c + ", numBlocks: " + vis.size() + " " + curr);
+    System.out.println(r + ", " + c + ", numBlocks: " + vis.size() + " " + curr);
     if (r == target[0] && c == target[1]) {
-      //      System.out.println("Returned early cuz target");
+      System.out.println("Returned early cuz target");
       if (vis.size() == numBlocks) {    //we found THE solution!!
         printGrid();
         System.out.println("SOLVED!!!");
@@ -48,30 +50,45 @@ public class MoveHereMoveThere {
       }
       return;
     }
-    if (vis.contains(curr.id) || r >= N || c >= M || r < 0 || c < 0) {  //this block has already been placed || we found a solution || off the grid
-      //      System.out.println("vis contains curr");
-      return;
-    }
+
+
     if (grid[r][c] != null) {
       vis.add(grid[r][c].id);   //mark even final blocks as visited
-      //      System.out.println("There's someone here");
+      System.out.println("There's someone here");
       if (grid[r][c].isFinal) {
-        //        System.out.println("redirecting");
+        System.out.println("redirecting");
         dfs(r + grid[r][c].dy, c + grid[r][c].dx, curr);  //final blocks should only redirect you
+        return;
       }
+      //      printGrid();
+      //      int nr = grid[r][c].dy + r, nc = grid[r][c].dx + c;
+      //      while (nr != r || nc != c) {
+      //        System.out.println("clearing " + nr + ", " + nc);
+      //        vis.remove(grid[nr][nc].id);
+      //        int dx = grid[nr][nc].dx, dy = grid[nr][nc].dy;
+      //        if (!grid[nr][nc].isFinal) {
+      //          grid[nr][nc] = null;
+      //        }
+      //        nr += dy;
+      //        nc += dx;
+      //      }
       return; //already visited this cell
     }
-    if (vis.size() == numBlocks) {  //no more blocks to place here, ended on an empty cell || invalid directions
-      System.out.println("Returned early");
+    if (vis.contains(curr.id)) {  //this block has already been placed 
+      System.out.println("vis contains curr");
       return;
     }
     if (out(r, c, curr))
       return;
+    if (vis.size() == numBlocks) {  //no more blocks to place here, ended on an empty cell || invalid directions
+      System.out.println("Returned early");
+      return;
+    }
 
 
+    int nr = r + curr.dy, nc = c + curr.dx;
     vis.add(curr.id);
     grid[r][c] = curr;
-    int nr = r + curr.dy, nc = c + curr.dx;
     for (Block b : blocks)
       dfs(nr, nc, b);
     grid[r][c] = null;
@@ -80,82 +97,82 @@ public class MoveHereMoveThere {
 
   static void readFromUser() throws IOException {
     Scanner sc = new Scanner(System.in);
+
     System.out.println(
-        "Welcome! This will solve your dilemnas arising from the game Move Here Move There, which can be found at: https://www.coolmathgames.com/0-move-here-move-there ");
+        "Welcome! This will solve your dilemnas arising from the game Move Here Move There, which can be found at: https://www.coolmathgames.com/0-move-here-move-there .");
     System.out.print(
-        "Enter 0 if you'd like to enter input through the terminal and 1 if you'd prefer it through a file.");
+        "Enter 0 if you'd like to enter input through the terminal and 1 if you'd prefer it through a file. ");
     int choice = sc.nextInt();
     if (choice == 1) {
       System.out.print(
-          "The file you choose must be written in a specific format. Are you sure you are ready to run the program? Take a look at example.in for the specifications. Proceed whenever you are ready.");
+          "The file you choose must be written in a specific format. Are you sure you are ready to run the program? Take a look at example.in for the specifications. Proceed whenever you are ready. ");
 
       System.out.print("Enter the file name: ");
       String file = sc.next();
       readFromFile(file);
       return;
     }
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("movehere.in")));
 
-
-    System.out.print("Enter the number of rows in the board: ");
-    N = sc.nextInt();
+    System.out.print(
+        "Your input will be recorded into \"movehere.in\". \nEnter the number of rows in the board: ");
+    out.print(sc.nextInt() + " ");
     System.out.print("Enter the number of columns in the board: ");
     M = sc.nextInt();
-    grid = new Block[N][M];
-    vis = new HashSet<>();
-    quit = false;
+    //    System.out.println("M: " + M);
+    out.println(M);
+
     System.out.println(
         "Please enter the following in 0-based format. Please enter any coordinates as 'x y' and any vectors as 'x-component y-component'. The top-left corner is (0,0), and the bottom-right corner is (N-1, M-1). Up is a negative y-direction. Down is a positive y-direction. Left is a negative x-direction. Right is a positive x-direction. ");
 
     System.out.print("Enter the location of the target (x y): ");
-    target[0] = sc.nextInt();
-    target[1] = sc.nextInt();
+    out.print(sc.nextInt() + " " + sc.nextInt() + '\n');
 
     System.out.print("Enter the location of the source (x y): ");
-    source[0] = sc.nextInt();
-    source[1] = sc.nextInt();
+    out.println(sc.nextInt() + " " + sc.nextInt());
+
     System.out.print("Enter the number of commands in the source cell: ");
     int numCmds = sc.nextInt();
-    int[][] commands = new int[numCmds][2];
+    out.println(numCmds);
     for (int i = 0; i != numCmds; i++) {
       System.out.print("Enter the vector components of the command (x-dir y-dir): ");
-      commands[i][0] = sc.nextInt();
-      commands[i][1] = sc.nextInt();
+      out.println(sc.nextInt() + " " + sc.nextInt());
     }
-    srcBlock = new Block(commands, true, 0);
-    grid[source[0]][source[1]] = srcBlock;
 
     System.out.print("Enter the number of preset blocks: ");
     numBlocks = sc.nextInt();
+    out.println(numBlocks);
     for (int i = 0; i != numBlocks; i++) {
       System.out.print("Enter the location of the preset block (x y): ");
       int r = sc.nextInt();
       int c = sc.nextInt();
+      out.println(r + " " + c);
       System.out.print("Enter the number of commands in this block: ");
       numCmds = sc.nextInt();
-      commands = new int[numCmds][2];
+      out.println(numCmds);
       for (int j = 0; j != numCmds; j++) {
         System.out.print("Enter the vector components of the command (x-dir y-dir): ");
-        commands[j][0] = sc.nextInt();
-        commands[j][1] = sc.nextInt();
+        out.println(sc.nextInt() + " " + sc.nextInt());
       }
-      grid[r][c] = new Block(commands, true, i + 1);
     }
 
     System.out.print("Enter the number of moveable blocks: ");
     int newBlocks = sc.nextInt();
-    numBlocks += newBlocks + 1;    //total # blocks, set and unset 
-    blocks = new Block[newBlocks];
+    out.println(newBlocks);
     for (int i = 0; i != newBlocks; i++) {
       System.out.print("Enter the number of commands in this block: ");
       numCmds = sc.nextInt();
-      commands = new int[numCmds][2];
+      out.println(numCmds);
       for (int j = 0; j != numCmds; j++) {
         System.out.print("Enter the vector components of the command (x-dir y-dir): ");
-        commands[j][0] = sc.nextInt();
-        commands[j][1] = sc.nextInt();
+        out.println(sc.nextInt() + " " + sc.nextInt());
       }
-      blocks[i] = new Block(commands, false, numBlocks - newBlocks + i + 1);
     }
+    out.flush();
+    System.out.print(
+        "Make sure \"movehere.in\" has all the correct information. Then press enter to solve your puzzle. ");
+    sc.next();
+    readFromFile("movehere.in");
   }
 
   static void readFromFile(String file) throws IOException {
@@ -184,6 +201,7 @@ public class MoveHereMoveThere {
         commands[i][1] = Integer.parseInt(st.nextToken());
       }
       srcBlock = new Block(commands, true, 0);
+      System.out.println(srcBlock);
       grid[source[0]][source[1]] = srcBlock;
 
       st = new StringTokenizer(in.readLine());
@@ -192,7 +210,9 @@ public class MoveHereMoveThere {
       for (int i = 0; i != numBlocks; i++) {
         st = new StringTokenizer(in.readLine());
         int r = Integer.parseInt(st.nextToken());
+        System.out.println(r);
         int c = Integer.parseInt(st.nextToken());
+
         st = new StringTokenizer(in.readLine());
         numCmds = Integer.parseInt(st.nextToken());
         commands = new int[numCmds][2];
@@ -224,7 +244,7 @@ public class MoveHereMoveThere {
 
   static boolean out(int r, int c, Block curr) {    //if commands from curr will move user off grid anytime during execution
     int[] bnds = curr.bounds;
-    return !(r + bnds[2] < N && c + bnds[1] < M && r + bnds[0] > -1 && c + bnds[3] > -1);
+    return !(r + bnds[0] < N && c + bnds[1] < M && r + bnds[2] > -1 && c + bnds[3] > -1);
   }
 
   static void printGrid() {
@@ -237,7 +257,7 @@ public class MoveHereMoveThere {
   static class Block {
     boolean isFinal;    //if it's hard set
     int dx = 0, dy = 0, id;
-    int[] bounds = new int[4];   //how much "space" this block needs NESW
+    int[] bounds = new int[4];   //how much "space" this block needs SENW
 
     public Block(int[][] commands, boolean isFinal, int id) {
       this.isFinal = isFinal;
@@ -255,8 +275,8 @@ public class MoveHereMoveThere {
     @Override
     public String toString() {
       String res = "Final: " + isFinal + ", dx: " + dx + ", dy: " + dy + ", id: " + id + '\t';
-      //      return res + Arrays.toString(bounds);
-      return res;
+      return res + Arrays.toString(bounds);
+      //      return res;
     }
   }
 
